@@ -1,0 +1,20 @@
+{
+  "name": "shl.ge",
+  "version": "1.0.0",
+  "description": "Link shortener",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^9.0.2",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "nanoid": "^2.1.8",
+    "yup": "^0.32.9"
+  }
+}
