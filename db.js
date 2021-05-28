@@ -44,6 +44,12 @@ async function addClick(alias){
     })
 }
 
+async function correctURL(oldURL, newURL){
+    connection.query(`UPDATE urls SET url = '${newURL}' WHERE url LIKE '${oldURL}'`, (err, row) => {
+        if (err) throw err
+    })
+}
+
 // UPDATE maybe, maybe not
 // async function updateShortlink(old_alias, new_alias, new_url, new_secret){
 //     connection.query(`UPDATE urls SET alias='${new_alias}', url='${new_url}', secret='${new_secret}'  WHERE alias LIKE '${old_alias}'`, (err, row) => {
@@ -62,5 +68,6 @@ module.exports = {
     findByAlias,
     insertShortlink,
     addClick,
+    correctURL,
     deleteByAlias
 }

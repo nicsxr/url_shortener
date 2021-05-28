@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const nanoid = require('nanoid')
 const yup = require('yup')
 const db = require('./db')
+const tools = require('./tools')
 
 require('dotenv').config()
 
@@ -22,7 +23,6 @@ var app = express()
 app.use(express.static('./public'))
 app.use(express.json())
 app.use(cors())
-
 
 
 // Create shortlink
@@ -71,7 +71,10 @@ app.get('/:alias', async (req, res) => {
     alias = alias.toLowerCase()
     result = await db.findByAlias(alias)
     if (result){
-        url = result.url
+        let url = result.url
+        if (!tools.urlHasProtocol(url)){
+            url = await tools.getFullURL(result.url)
+        }
         db.addClick(alias)
         res.status(301).redirect(url)
     }else{
