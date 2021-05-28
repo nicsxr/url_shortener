@@ -19,7 +19,7 @@ let schema = yup.object().shape({
 
 var app = express()
 
-app.use(express.static('public'))
+app.use(express.static('./public'))
 app.use(express.json())
 app.use(cors())
 
@@ -27,7 +27,8 @@ app.use(cors())
 
 // Create shortlink
 app.post('/create', async (req, res, next) =>{
-    let {alias, link, secret} = req.body
+    console.log(req.body)
+    let {alias, url, secret} = req.body
 
     if (!alias) alias = nanoid(6)
 
@@ -45,14 +46,14 @@ app.post('/create', async (req, res, next) =>{
 
     try {
         // Validate schema
-        await schema.validate({url: link, alias: alias, secret: secret})
+        await schema.validate({url: url, alias: alias, secret: secret})
         
         // Check if alias exists
         result = await db.findByAlias(alias)
 
         // Insert if it doesn't exist
         if (!result){
-            result = await db.insertShortlink(alias, link, secret)
+            result = await db.insertShortlink(alias, url, secret)
             res.send(result)
         }else{
             res.send('Alias already in use! 🚫')
@@ -66,7 +67,7 @@ app.post('/create', async (req, res, next) =>{
 
 // Visit shortlink URL and redirect
 app.get('/:alias', async (req, res) => {
-    const { alias } = req.params
+    let { alias } = req.params
     alias = alias.toLowerCase()
     result = await db.findByAlias(alias)
     if (result){
@@ -80,7 +81,7 @@ app.get('/:alias', async (req, res) => {
 
 // View shortlink URL info
 app.get('/info/:alias', async (req, res) => {
-    const { alias } = req.params
+    let { alias } = req.params
     alias = alias.toLowerCase()
 
     result = await db.findByAlias(alias)
@@ -95,7 +96,7 @@ app.get('/info/:alias', async (req, res) => {
 
 // Update shortlink URL settings
 app.post('/delete', async (req, res) => {
-    const { alias, secret } = req.body
+    let { alias, secret } = req.body
     alias = alias.toLowerCase()
     
     result = await db.findByAlias(alias)
