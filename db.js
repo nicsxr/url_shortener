@@ -1,73 +1,106 @@
-const mysql = require('mysql');
+const mongoose = require('mongoose')
 const dotenv = require('dotenv')
+const {Url, User } = require('./models')
 
 dotenv.config()
 
-var connection = mysql.createConnection({
-    host     : process.env.MYSQL_HOST,
-    database : process.env.MYSQL_DATABASE,
-    user     : process.env.MYSQL_USER,
-    password : process.env.MYSQL_PASSWORD,
-});
-
-connection.connect(function(err) {
-    if (err) {
-        console.error('Error connecting: ' + err.stack);
-        return;
-    }
-
-    console.log('Connected as id ' + connection.threadId);
-});
+mongoose.connect(process.env.URI, {useNewUrlParser: true, useUnifiedTopology: true})
+    .then((result) => console.log('Connected'))
+    .catch((err) => console.log('Connection Error'))
 
 async function findByAlias(alias){
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM urls WHERE alias LIKE '${alias}'`, (err, row) => {
+        Url.findOne({alias: alias}, (err, res) => {
             if (err) reject(err)
-            resolve(row[0])
+            resolve(res)
         })
-
     })
 }
 
-async function insertShortlink(alias, link, secret){
+async function insertShortlink(alias, url, secret){
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO urls (alias, url, secret) VALUES ('${alias}', '${link}', '${secret}')`, async (err, row) => {
+        const url = new Url({
+            alias: alias,
+            url: url,
+            secret: secret,
+            clicks: 0
+        })
+
+        url.save()
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((err) =>{
+                reject(err)
+            })
+    })
+}
+//addclick
+async function addClick(alias){
+    const url = await findByAlias(alias)
+    url.clicks = url.clicks+1
+    url.save()
+
+    // check if user exists, if not, create
+    if (!findUserByIP('33'))
+        await createUser('33')
+    
+    // check if user has already visited site, if not, create new relation
+    if (!User.findOne({'ip:': '33', 'aliasVisits.alias': alias}))
+        User.updateOne({ip: "33"}, {$addToSet: {aliasVisits: {alias: alias}}}, (err, res) => {
+            if(err) console.log(err)
+        })
+    
+    // increment visits
+    User.updateOne({ip: "33", "aliasVisits.alias": alias}, {$inc: {'aliasVisits.$.visits': 1}}, (err, res) => {
+        if (err) console.log(err)
+    })
+}   
+
+async function findUserByIP(ip){
+    return new Promise((resolve, reject) => {
+        User.findOne({ip: ip}, (err, res) => {
             if (err) reject(err)
-            resolve(await findByAlias(alias))
+            resolve(res)
         })
     })
 }
 
-async function addClick(alias){
-    connection.query(`UPDATE urls SET clicks = clicks+1 WHERE alias LIKE '${alias}'`, (err, row) => {
-        if (err) throw err
+async function createUser(ip){
+    return new Promise((resolve, reject) => {
+        user = new User({
+            ip: ip,
+            aliasVisits: [],
+            totalClicks: 0
+        })
+        user.save()
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((err) => {
+                reject(err)
+            })
     })
 }
-
-async function correctURL(oldURL, newURL){
-    connection.query(`UPDATE urls SET url = '${newURL}' WHERE url LIKE '${oldURL}'`, (err, row) => {
-        if (err) throw err
-    })
-}
-
 // UPDATE maybe, maybe not
 // async function updateShortlink(old_alias, new_alias, new_url, new_secret){
-//     connection.query(`UPDATE urls SET alias='${new_alias}', url='${new_url}', secret='${new_secret}'  WHERE alias LIKE '${old_alias}'`, (err, row) => {
+//     connection.query(`UPDATE url SET alias='${new_alias}', url='${new_url}', secret='${new_secret}'  WHERE alias LIKE '${old_alias}'`, (err, row) => {
 //         if (err) throw err
 //     })
 // }
 async function deleteByAlias(alias){
-    connection.query(`DELETE FROM urls WHERE alias='${alias}'`, (err, row) => {
+    connection.query(`DELETE FROM url WHERE alias='${alias}'`, (err, row) => {
         if (err) throw err
     })
 }
 
 
-module.exports = {
-    connection, 
+module.exports = { 
     findByAlias,
     insertShortlink,
     addClick,
-    correctURL,
     deleteByAlias
 }
+
+
+
