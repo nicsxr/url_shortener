@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
-const {Url, User } = require('./models')
+const {Url, User, UrlHistory } = require('./models/models')
+const { getCurrentDate } = require('./tools')
 
 dotenv.config()
 
@@ -17,11 +18,11 @@ async function findByAlias(alias){
     })
 }
 
-async function insertShortlink(alias, url, secret){
+async function insertShortlink(alias, link, secret){
     return new Promise((resolve, reject) => {
         const url = new Url({
             alias: alias,
-            url: url,
+            url: link,
             secret: secret,
             clicks: 0
         })
@@ -36,25 +37,58 @@ async function insertShortlink(alias, url, secret){
     })
 }
 //addclick
-async function addClick(alias){
-    const url = await findByAlias(alias)
-    url.clicks = url.clicks+1
-    url.save()
+async function addClick(alias, ip='33'){
 
-    // check if user exists, if not, create
-    if (!findUserByIP('33'))
-        await createUser('33')
-    
-    // check if user has already visited site, if not, create new relation
-    if (!User.findOne({'ip:': '33', 'aliasVisits.alias': alias}))
-        User.updateOne({ip: "33"}, {$addToSet: {aliasVisits: {alias: alias}}}, (err, res) => {
+    // HISTORY
+    let history
+    // Check if url history record exists, if exists query it, if not create and query it
+    if(!await findURLHisotry(alias, ip)){
+        history = await createURLHistory(alias, ip)
+    }
+    else{
+        history = await findURLHisotry(alias, ip)
+    }
+
+    // check if specific record exists in history, if not create it
+    if(!await Url.findOne({alias: alias, 'urlVisits.ip': ip, 'urlVisits.history': history._id})){
+        Url.updateOne({alias: alias, 'urlVisits.ip': ip}, {$addToSet: {'urlVisits.history': history._id}}, (err, res) => {
             if(err) console.log(err)
         })
+    }
+    
+    // check if user has already visited today, if not create new sub-record
+    if(!await UrlHistory.findOne({_id: history._id, 'urlVisits.date': getCurrentDate()})){
+        UrlHistory.updateOne({_id: history._id}, {$addToSet: {urlVisits: {/* default values already defined */}}}, (err, res) => {
+            if(err) console.log(err)
+        })
+    }
     
     // increment visits
-    User.updateOne({ip: "33", "aliasVisits.alias": alias}, {$inc: {'aliasVisits.$.visits': 1}}, (err, res) => {
-        if (err) console.log(err)
+    UrlHistory.updateOne({_id: history._id, 'urlVisits.date': getCurrentDate()}, {$inc: {'urlVisits.$.visits': 1, totalVisits: 1}}, (err, res) => {
+        if(err) console.log(err)
     })
+
+    // check if user exists, if not, create
+    if (!await findUserByIP(ip))
+        await createUser(ip)
+
+    // insert history record in user's collection (if it doesnt already exists)
+    User.updateOne({ip: ip}, {$addToSet: {aliasVisits: history._id}, $inc: {totalClicks: 1}}, {upsert: true}, (err, res) => {
+        if(err) console.log(err)
+    })        
+
+    
+    // // check if user has already visited site, if not, create new relation
+    // if (!await User.findOne({ip: ip, 'aliasVisits.alias': alias})){
+    //     User.updateOne({ip: ip}, {$addToSet: {aliasVisits: {alias: alias}}}, {upsert: true}, (err, res) => {
+    //         if(err) console.log(err)
+    //     })
+    // }
+    
+    // // // increment visits
+    // // User.updateOne({ip: ip, "aliasVisits.alias": alias}, {$inc: {'aliasVisits.$.visits': 1}}, (err, res) => {
+    // //     if (err) console.log(err)
+    // // })
 }   
 
 async function findUserByIP(ip){
@@ -82,6 +116,34 @@ async function createUser(ip){
             })
     })
 }
+
+async function createURLHistory(alias, ip){
+    return new Promise((resolve, reject) => {
+        history = new UrlHistory({
+            alias: alias,
+            ip: ip
+        })
+        history.save()
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((err) => {
+                console(err)
+            })
+    })
+}
+
+async function findURLHisotry(alias, ip){
+    return new Promise((resolve, reject) => {
+        UrlHistory.findOne({alias: alias, ip: ip})
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((err) => {
+                reject(err)
+            })
+    })
+}
 // UPDATE maybe, maybe not
 // async function updateShortlink(old_alias, new_alias, new_url, new_secret){
 //     connection.query(`UPDATE url SET alias='${new_alias}', url='${new_url}', secret='${new_secret}'  WHERE alias LIKE '${old_alias}'`, (err, row) => {
@@ -89,8 +151,8 @@ async function createUser(ip){
 //     })
 // }
 async function deleteByAlias(alias){
-    connection.query(`DELETE FROM url WHERE alias='${alias}'`, (err, row) => {
-        if (err) throw err
+    Url.deleteOne({alias: alias}, (err, res) => {
+        if(err) console.log(err)
     })
 }
 

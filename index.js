@@ -27,8 +27,8 @@ app.use(cors())
 
 // Create shortlink
 app.post('/create', async (req, res, next) =>{
-    console.log(req.body)
     let {alias, url, secret} = req.body
+    let hashedSecret
 
     if (!alias) alias = nanoid(6)
 
@@ -36,24 +36,27 @@ app.post('/create', async (req, res, next) =>{
 
     if (secret){
         hash = await bcrypt.hash(secret, 10)
-        secret = hash
+        hashedSecret = hash
     }else{
         secret = nanoid(10)
-        console.log(secret)
         const hash = await bcrypt.hash(secret, 10)
-        secret = hash
+        hashedSecret = hash
     }
 
     try {
         // Validate schema
-        await schema.validate({url: url, alias: alias, secret: secret})
+        await schema.validate({url: url, alias: alias, secret: hashedSecret})
         
         // Check if alias exists
         result = await db.findByAlias(alias)
 
+        // check url and assign HTTP protocol if no protocol is present
+        url = tools.getCorrectURL(url)
+
         // Insert if it doesn't exist
         if (!result){
-            result = await db.insertShortlink(alias, url, secret)
+            result = await db.insertShortlink(alias, url, hashedSecret)
+            result['secret'] = secret
             res.send(result)
         }else{
             res.send('Alias already in use! 🚫')
@@ -68,15 +71,13 @@ app.post('/create', async (req, res, next) =>{
 // Visit shortlink URL and redirect
 app.get('/:alias', async (req, res) => {
     let { alias } = req.params
+    const ip = req.ip.substring(req.ip.lastIndexOf(':')+1) // extract ipv4
+
     alias = alias.toLowerCase()
     result = await db.findByAlias(alias)
     if (result){
-        let url = result.url
-        if (!tools.urlHasProtocol(url)){
-            url = await tools.getFullURL(result.url)
-        }
-        db.addClick(alias)
-        res.status(301).redirect(url)
+        db.addClick(alias, '33')
+        res.status(301).redirect(result.url)
     }else{
         res.status(404).send(`Alias ${alias} not found! 🚫`)
     }
