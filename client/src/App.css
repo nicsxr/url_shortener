@@ -1,0 +1,20 @@
+#root{
+  margin-left: 15%;
+  margin-right: 15%;
+}
+
+.createForm{
+  align-items: center;
+}
+
+.responseDiv h1{
+  font-weight: normal;
+  text-align: left;
+}
+
+.inputButton{
+  width:100%;
+}
+.App {
+  text-align: center;
+}
