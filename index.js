@@ -28,6 +28,7 @@ app.use(cors())
 // Create shortlink
 app.post('/create', async (req, res, next) =>{
     let {alias, url, secret} = req.body
+    const ip = req.ip.substring(req.ip.lastIndexOf(':')+1) // extract ipv4
     let hashedSecret
 
     if (!alias) alias = nanoid(6)
@@ -55,9 +56,9 @@ app.post('/create', async (req, res, next) =>{
 
         // Insert if it doesn't exist
         if (!result){
-            result = await db.insertShortlink(alias, url, hashedSecret)
+            result = await db.insertShortlink(alias, url, hashedSecret, ip)
             result['secret'] = secret
-            res.send(result)
+            res.status(201).send(result)
         }else{
             res.send('Alias already in use! 🚫')
         }
@@ -76,7 +77,7 @@ app.get('/:alias', async (req, res) => {
     alias = alias.toLowerCase()
     result = await db.findByAlias(alias)
     if (result){
-        db.addClick(alias, '33')
+        db.addClick(alias, ip)
         res.status(301).redirect(result.url)
     }else{
         res.status(404).send(`Alias ${alias} not found! 🚫`)
@@ -84,15 +85,26 @@ app.get('/:alias', async (req, res) => {
 })
 
 // View shortlink URL info
-app.get('/info/:alias', async (req, res) => {
+app.get('/info/url/:alias', async (req, res) => {
     let { alias } = req.params
     alias = alias.toLowerCase()
 
     result = await db.findByAlias(alias)
 
+    urlHistory = await db.findURLHistoryByAlias(alias)
+    analyzedResult = tools.analyzeURLData(urlHistory)
+
+    urlInfo = {
+        alias: result.alias,
+        url: result.url,
+        createdAt: tools.getDate(result.createdAt),
+        totalVisits: analyzedResult.reduce((a, b) => +a + +b.visits, 0)
+    }
+
+    analyzedResult.splice(0,0, urlInfo)
+    console.log(analyzedResult)
     if (result){
-        delete result['secret']
-        res.send(result)
+        res.send(analyzedResult)
     }else{
         res.status(404).send(`Alias ${alias} not found! 🚫`)
     }

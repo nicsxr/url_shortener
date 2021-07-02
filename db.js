@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const dotenv = require('dotenv')
 const {Url, User, UrlHistory } = require('./models/models')
-const { getCurrentDate } = require('./tools')
+const { getDate } = require('./tools')
 
 dotenv.config()
 
@@ -18,13 +18,14 @@ async function findByAlias(alias){
     })
 }
 
-async function insertShortlink(alias, link, secret){
+async function insertShortlink(alias, link, secret, ip){
     return new Promise((resolve, reject) => {
         const url = new Url({
             alias: alias,
             url: link,
             secret: secret,
-            clicks: 0
+            clicks: 0,
+            creator: ip
         })
 
         url.save()
@@ -50,21 +51,22 @@ async function addClick(alias, ip='33'){
     }
 
     // check if specific record exists in history, if not create it
-    if(!await Url.findOne({alias: alias, 'urlVisits.ip': ip, 'urlVisits.history': history._id})){
-        Url.updateOne({alias: alias, 'urlVisits.ip': ip}, {$addToSet: {'urlVisits.history': history._id}}, (err, res) => {
+    if(!await Url.findOne({alias: alias, 'urlVisits.ip': ip, 'urlVisits': history._id})){
+        console.log('xd')
+        Url.updateOne({alias: alias}, {$addToSet: {'urlVisits': history._id}}, (err, res) => {
             if(err) console.log(err)
         })
     }
     
     // check if user has already visited today, if not create new sub-record
-    if(!await UrlHistory.findOne({_id: history._id, 'urlVisits.date': getCurrentDate()})){
+    if(!await UrlHistory.findOne({_id: history._id, 'urlVisits.date': getDate()})){
         UrlHistory.updateOne({_id: history._id}, {$addToSet: {urlVisits: {/* default values already defined */}}}, (err, res) => {
             if(err) console.log(err)
         })
     }
     
     // increment visits
-    UrlHistory.updateOne({_id: history._id, 'urlVisits.date': getCurrentDate()}, {$inc: {'urlVisits.$.visits': 1, totalVisits: 1}}, (err, res) => {
+    UrlHistory.updateOne({_id: history._id, 'urlVisits.date': getDate()}, {$inc: {'urlVisits.$.visits': 1, totalVisits: 1}}, (err, res) => {
         if(err) console.log(err)
     })
 
@@ -144,6 +146,18 @@ async function findURLHisotry(alias, ip){
             })
     })
 }
+
+async function findURLHistoryByAlias(alias){
+    return new Promise((resolve, reject) => {
+        UrlHistory.find({alias: alias})
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((err) => {
+                reject(err)
+            })
+    })
+}
 // UPDATE maybe, maybe not
 // async function updateShortlink(old_alias, new_alias, new_url, new_secret){
 //     connection.query(`UPDATE url SET alias='${new_alias}', url='${new_url}', secret='${new_secret}'  WHERE alias LIKE '${old_alias}'`, (err, row) => {
@@ -161,7 +175,8 @@ module.exports = {
     findByAlias,
     insertShortlink,
     addClick,
-    deleteByAlias
+    deleteByAlias,
+    findURLHistoryByAlias
 }
 
 

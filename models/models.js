@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 const { urlVisitsSchema } = require('./submodels')
-const { getCurrentDate } = require('../tools')
+const { getDate } = require('../tools')
 
 
 const urlSchema = new Schema({
@@ -17,6 +17,9 @@ const urlSchema = new Schema({
     secret : {
         type: String,
         required: true
+    },
+    creator: {
+        type: String
     },
     urlVisits: [],
 }, {timestamps: true})
@@ -51,7 +54,7 @@ const urlHistorySchema = new Schema({
     },
     date: {
         type: String,
-        default: getCurrentDate()
+        default: getDate()
     }
 })
 

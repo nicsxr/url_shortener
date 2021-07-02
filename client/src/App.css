@@ -1,6 +1,6 @@
 #root{
-  margin-left: 15%;
-  margin-right: 15%;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
 .createForm{
@@ -9,7 +9,19 @@
 
 .responseDiv h1{
   font-weight: normal;
-  text-align: left;
+}
+
+.responseDiv{
+  
+
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+}
+
+.urlText{
+  text-decoration: none;
+  font-size: 1.5vw;
 }
 
 .inputButton{

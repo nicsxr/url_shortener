@@ -41,8 +41,7 @@ function getCorrectURL(url){
 // }
 
 
-function getCurrentDate(){
-    const date = new Date()
+function getDate(date=new Date()){
 
     const day = date.getUTCDate()
     const month = date.getUTCMonth()
@@ -51,7 +50,37 @@ function getCurrentDate(){
     return `${day}/${month}/${year}`
 }
 
+
+function analyzeURLData(data){
+    let history = []
+
+    data.forEach(obj => {
+        obj.urlVisits.forEach(element => {
+            history.push(element)    
+        });
+    });
+
+
+    // merge objects with same dates
+    var result = history.reduce(function(acc, val){
+        var o = acc.filter(function(obj){
+            return obj.date==val.date;
+        }).pop() || {date:val.date, visits:0};
+        
+        o.visits += val.visits;
+        acc.push(o);
+        return acc;
+    },[]);
+
+    var finalresult = result.filter(function(itm, i, a) {
+        return i == a.indexOf(itm);
+    });
+
+    return finalresult
+}
+
 module.exports = {
     getCorrectURL,
-    getCurrentDate
+    getDate,
+    analyzeURLData
 }

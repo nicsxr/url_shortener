@@ -1,12 +1,12 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const { getCurrentDate } = require('../tools')
+const { getDate } = require('../tools')
 
 
 const urlVisitsSchema = new Schema({
     date: {
         type: String,
-        default: getCurrentDate()
+        default: getDate()
     },
     visits:{
         type: Number,
