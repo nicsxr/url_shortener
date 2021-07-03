@@ -46,6 +46,10 @@ const urlHistorySchema = new Schema({
         type: String,
         required: true,
     },
+    url: {
+        type: String,
+        required: true
+    },
     urlVisits: [urlVisitsSchema],
     totalVisits:{
         type: Number,

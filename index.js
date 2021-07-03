@@ -10,7 +10,16 @@ require('dotenv').config()
 
 connection = db.connection
 
+// needs to be moved
+const handleErrorAsync = func => async (req, res, next) => {
+    try {
+        await func(req, res, next);
+    } catch (error) {
+        next(error);
+    }
+};
 
+// also need to be moved
 const URL_REGEX = /((https?):\/\/)?(www.)?[a-z0-9-]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#-]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/
 let schema = yup.object().shape({
     url: yup.string().required().trim().matches(URL_REGEX, 'Must be a valid URL'),
@@ -77,7 +86,7 @@ app.get('/:alias', async (req, res) => {
     alias = alias.toLowerCase()
     result = await db.findByAlias(alias)
     if (result){
-        db.addClick(alias, ip)
+        db.addClick(alias, result.url, ip)
         res.status(301).redirect(result.url)
     }else{
         res.status(404).send(`Alias ${alias} not found! 🚫`)
@@ -85,12 +94,14 @@ app.get('/:alias', async (req, res) => {
 })
 
 // View shortlink URL info
-app.get('/info/url/:alias', async (req, res) => {
+app.get('/info/url/:alias', handleErrorAsync(async (req, res, next) => {
     let { alias } = req.params
     alias = alias.toLowerCase()
-
+    
     result = await db.findByAlias(alias)
 
+    console.log(result)
+    
     urlHistory = await db.findURLHistoryByAlias(alias)
     analyzedResult = tools.analyzeURLData(urlHistory)
 
@@ -106,7 +117,40 @@ app.get('/info/url/:alias', async (req, res) => {
     if (result){
         res.send(analyzedResult)
     }else{
-        res.status(404).send(`Alias ${alias} not found! 🚫`)
+        res.status(404)
+    }
+}))
+
+// View shortlink URL info
+app.get('/info/user/:ip', async (req, res) => {
+    let { ip } = req.params
+
+    result = await db.findUserByIP(ip)
+
+    userHistory = await db.findUserHistoryByIP(ip)
+
+    fullHistory = tools.analyzeUserData(userHistory)
+    perSiteData = tools.analyzeUserPerSiteData(userHistory)
+    perSiteHistory = tools.analyzeUserPerSiteHistoryData(userHistory)
+
+    userInfo = {
+        ip: result.ip,
+        createdAt: tools.getDate(result.createdAt),
+        totalVisits: userHistory.reduce((a, b) => +a + +b.totalVisits, 0)
+    }
+
+    finalResult = {
+        userInfo,
+        fullHistory,
+        perSiteData,
+        perSiteHistory
+    }
+
+    // console.log(finalResult)
+    if (result){
+        res.send(finalResult)
+    }else{
+        res.status(404).send(`User ${ip} not found! 🚫`)
     }
 })
 
@@ -130,5 +174,7 @@ app.post('/delete', async (req, res) => {
     }
 
 })
+
+
 
 app.listen(8000)

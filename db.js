@@ -38,13 +38,13 @@ async function insertShortlink(alias, link, secret, ip){
     })
 }
 //addclick
-async function addClick(alias, ip='33'){
+async function addClick(alias, url, ip){
 
     // HISTORY
     let history
     // Check if url history record exists, if exists query it, if not create and query it
     if(!await findURLHisotry(alias, ip)){
-        history = await createURLHistory(alias, ip)
+        history = await createURLHistory(alias, url, ip)
     }
     else{
         history = await findURLHisotry(alias, ip)
@@ -119,18 +119,19 @@ async function createUser(ip){
     })
 }
 
-async function createURLHistory(alias, ip){
+async function createURLHistory(alias, url, ip){
     return new Promise((resolve, reject) => {
         history = new UrlHistory({
             alias: alias,
-            ip: ip
+            ip: ip,
+            url: url
         })
         history.save()
             .then((res) => {
                 resolve(res)
             })
             .catch((err) => {
-                console(err)
+                reject(err)
             })
     })
 }
@@ -158,6 +159,18 @@ async function findURLHistoryByAlias(alias){
             })
     })
 }
+
+async function findUserHistoryByIP(ip){
+    return new Promise((resolve, reject) => {
+        UrlHistory.find({ip: ip})
+            .then((res) => {
+                resolve(res)
+            })
+            .catch((err) => {
+                reject(err)
+            })
+    })
+}
 // UPDATE maybe, maybe not
 // async function updateShortlink(old_alias, new_alias, new_url, new_secret){
 //     connection.query(`UPDATE url SET alias='${new_alias}', url='${new_url}', secret='${new_secret}'  WHERE alias LIKE '${old_alias}'`, (err, row) => {
@@ -176,7 +189,9 @@ module.exports = {
     insertShortlink,
     addClick,
     deleteByAlias,
-    findURLHistoryByAlias
+    findURLHistoryByAlias,
+    findUserByIP,
+    findUserHistoryByIP
 }
 
 

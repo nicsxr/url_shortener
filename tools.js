@@ -44,7 +44,7 @@ function getCorrectURL(url){
 function getDate(date=new Date()){
 
     const day = date.getUTCDate()
-    const month = date.getUTCMonth()
+    const month = date.getUTCMonth() + 1
     const year = date.getUTCFullYear()
 
     return `${day}/${month}/${year}`
@@ -79,8 +79,73 @@ function analyzeURLData(data){
     return finalresult
 }
 
+function analyzeUserData(data){
+    let history = []
+
+    data.forEach(obj => {
+        obj.urlVisits.forEach(element => {
+            history.push(element)    
+        });
+    });
+
+    // merge objects with same dates
+    var result = history.reduce(function(acc, val){
+        var o = acc.filter(function(obj){
+            return obj.date==val.date;
+        }).pop() || {date:val.date, visits:0};
+        
+        o.visits += val.visits;
+        acc.push(o);
+        return acc;
+    },[]);
+
+    var finalresult = result.filter(function(itm, i, a) {
+        return i == a.indexOf(itm);
+    });
+    console.log(finalresult)
+    return finalresult
+}
+function analyzeUserPerSiteData(data){
+    let perSiteVisits = []
+    data.forEach(obj => {
+        perSiteVisits.push({alias: obj.alias, url: obj.url, totalVisits: obj.totalVisits})    
+    });
+    console.log(perSiteVisits)
+    return perSiteVisits
+}
+function analyzeUserPerSiteHistoryData(data){
+    let history = []
+    for (let i = 0; i < data.length; i++) {
+        const obj = data[i].urlVisits;
+        for (let j = 0; j < obj.length; j++) {
+            let element = obj[j]
+            history.push({url: data[i].url, alias: data[i].alias, date: element.date, visits: element.visits})    
+        }
+    }
+
+    // console.log(history)
+    // merge objects with same dates
+    var result = history.reduce(function(acc, val){
+        var o = acc.filter(function(obj){
+            return obj.alias==val.alias;
+        }).pop() || {url:val.url, alias:val.alias, visits: []};
+        
+        o.visits.push({visits: val.visits, date: val.date});
+        acc.push(o);
+        return acc;
+    },[]);
+    var finalresult = result.filter(function(itm, i, a) {
+        return i == a.indexOf(itm);
+    });
+
+    console.log(finalresult)
+    return finalresult
+}
 module.exports = {
     getCorrectURL,
     getDate,
-    analyzeURLData
+    analyzeURLData,
+    analyzeUserData,
+    analyzeUserPerSiteData,
+    analyzeUserPerSiteHistoryData
 }
