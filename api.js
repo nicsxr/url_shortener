@@ -28,7 +28,7 @@ let schema = yup.object().shape({
 })
 
 // Create shortlink
-router.post('/create', async (req, res, next) =>{
+router.post('/create', async (req, res) =>{
     let {alias, url, secret} = req.body
     const ip = req.ip.substring(req.ip.lastIndexOf(':')+1) // extract ipv4
     let hashedSecret

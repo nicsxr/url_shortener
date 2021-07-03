@@ -11,7 +11,6 @@ connection = db.connection
 
 var app = express()
 
-app.use(express.static('./public'))
 app.use(express.json())
 app.use(cors())
 
@@ -42,4 +41,4 @@ app.get('/:alias', async (req, res) => {
     }
 })
 
-app.listen(8000)
+app.listen(process.env.PORT || 8000)

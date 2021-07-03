@@ -38,7 +38,7 @@ const CreateResponse = (props) => {
         }
     }else{
         return(
-            <div>
+            <div style={{textAlign: 'center'}}>
                 {<h1>{data}</h1>}
             </div>
         )
