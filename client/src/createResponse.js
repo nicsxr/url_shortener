@@ -29,7 +29,7 @@ const CreateResponse = (props) => {
             return(
                 <div className="responseDiv">
                     <h1>📝Alias: <b>{data.alias}</b></h1>
-                    <h1>🌐URL: <b>{data.url}</b></h1>
+                    <h1>🌐URL: <a style={{ textDecoration: 'none', fontSize: '3vw'}} href={data.url} target="_blank" rel="noreferrer"><b>{data.url}</b></a></h1>
                     <h1>🔐Secret: <b>{data.secret}</b></h1>
                     <h1>🤵Creator: <b>{data.creator}</b></h1>
                     <Button variant="danger" onClick={deleteRecord}>Delete</Button>

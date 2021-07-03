@@ -1,10 +1,11 @@
-#root{
+.AppRoot{
   margin-left: 10%;
   margin-right: 10%;
 }
 
 .createForm{
   align-items: center;
+  text-align: center;
 }
 
 .responseDiv h1{
@@ -12,8 +13,6 @@
 }
 
 .responseDiv{
-  
-
   border-width: 1px;
   border-style: solid;
   border-color: black;
