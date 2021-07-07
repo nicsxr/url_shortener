@@ -54,12 +54,12 @@ function getDate(date=new Date()){
 function analyzeURLData(data){
     let history = []
 
+    // Create new array from history sub-documents
     data.forEach(obj => {
         obj.urlVisits.forEach(element => {
             history.push(element)    
         });
     });
-
 
     // merge objects with same dates
     var result = history.reduce(function(acc, val){
@@ -72,8 +72,14 @@ function analyzeURLData(data){
         return acc;
     },[]);
 
+    // Remove duplicates
     var finalresult = result.filter(function(itm, i, a) {
         return i == a.indexOf(itm);
+    });
+
+    // Sort results by date
+    finalresult.sort(function(a,b){
+        return new Date(a.date) - new Date(b.date);
     });
 
     return finalresult
@@ -115,6 +121,8 @@ function analyzeUserPerSiteData(data){
 }
 function analyzeUserPerSiteHistoryData(data){
     let history = []
+
+    // Create new object from all relevant history documents
     for (let i = 0; i < data.length; i++) {
         const obj = data[i].urlVisits;
         for (let j = 0; j < obj.length; j++) {
@@ -123,7 +131,11 @@ function analyzeUserPerSiteHistoryData(data){
         }
     }
 
-    // console.log(history)
+    // Sort results
+    history.sort(function(a,b){
+        return new Date(a.date) - new Date(b.date);
+    });
+
     // merge objects with same dates
     var result = history.reduce(function(acc, val){
         var o = acc.filter(function(obj){
@@ -134,6 +146,8 @@ function analyzeUserPerSiteHistoryData(data){
         acc.push(o);
         return acc;
     },[]);
+
+    // filter the results
     var finalresult = result.filter(function(itm, i, a) {
         return i == a.indexOf(itm);
     });
