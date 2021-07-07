@@ -5,7 +5,6 @@ import './App.css';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import UserInfo from './userInfo';
 import NavbarComponent from './components/navbar'
-import { useEffect, useState } from 'react';
 
 axios.defaults.baseURL = 'https://shortlinkge.herokuapp.com/api/';
 // axios.defaults.baseURL = 'http://localhost:8000/api/';

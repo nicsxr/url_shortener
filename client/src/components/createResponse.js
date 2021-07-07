@@ -27,12 +27,12 @@ const CreateResponse = (props) => {
         if(!data.alias) return( <h1>{data}</h1>)
         else{
             return(
-                <div className="responseDiv">
+                <div className="d-flex flex-column justify-content-center centerText">
                     <h1>📝Alias: <b>{data.alias}</b></h1>
                     <h1>🌐URL: <a style={{ textDecoration: 'none', fontSize: '3vw'}} href={data.url} target="_blank" rel="noreferrer"><b>{data.url}</b></a></h1>
                     <h1>🔐Secret: <b>{data.secret}</b></h1>
                     <h1>🤵Creator: <b>{data.creator}</b></h1>
-                    <Button variant="danger" onClick={deleteRecord}>Delete</Button>
+                    <Button variant="danger w-25 m-auto" onClick={deleteRecord}>Delete</Button>
                 </div>
             )
         }

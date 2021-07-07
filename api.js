@@ -18,6 +18,9 @@ const handleErrorAsync = func => async (req, res, next) => {
     }
 };
 
+// FORBIDDEN ALIASES
+const FORBIDDEN_ALIASES = ['create', 'alias', 'info', 'url', 'user', 'api', 'delete']
+
 // also need to be moved
 const URL_REGEX = /((https?):\/\/)?(www.)?[a-z0-9-]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#-]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/
 let schema = yup.object().shape({
@@ -46,6 +49,10 @@ router.post('/create', async (req, res) =>{
     }
 
     try {
+        if (FORBIDDEN_ALIASES.includes(alias)){
+            console.log('eeeeeeeeeriha')
+            throw new Error('🚫 Forbidden alias!')
+        }
         // Validate schema
         await schema.validate({url: url, alias: alias, secret: hashedSecret})
         
