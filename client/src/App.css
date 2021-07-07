@@ -20,12 +20,28 @@
 
 .urlText{
   text-decoration: none;
-  font-size: 1.5vw;
+  font-size: 2vw;
 }
 
 .inputButton{
   width:100%;
 }
+
+.dropdown-toggle,
+.dropdown-menu {
+  width: 100%;
+}
+
+.titleTextDiv{
+  margin: auto;
+  width: 60%;
+  text-align: center;
+}
+
+.centerText{
+  text-align: center;
+}
+
 .App {
   text-align: center;
 }

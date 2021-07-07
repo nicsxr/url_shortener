@@ -1,14 +1,17 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import UserChart from './userChart'
+import UserChart from './components/userChart'
 import {Form, Button, Row, Col} from 'react-bootstrap'
+import TitleComponent from './components/title'
 
 const UserInfo = ({match}) => {
+    document.title = "User statistics"
+    
     const [ip, setIP] = useState(match.params.ip ? match.params.ip : '')
     const [err, setErr] = useState('')
     const [userData, setUserData] = useState('')
     const [fullHistoryData, setFullHistoryData] = useState('')
-    const [PerSiteHistoryData, setPerSiteHistoryData] = useState('')
+    const [perSiteHistoryData, setPerSiteHistoryData] = useState('')
     const [perSiteData, setPerSiteData] = useState('')
     
     useEffect (()=> {
@@ -23,6 +26,7 @@ const UserInfo = ({match}) => {
         setFullHistoryData('')
         setPerSiteHistoryData('')
         setPerSiteData('')
+        setErr('')
 
 
         if(e)
@@ -34,6 +38,7 @@ const UserInfo = ({match}) => {
                 setFullHistoryData(res.data.fullHistory)
                 setPerSiteHistoryData(res.data.perSiteHistory)
                 setPerSiteData(res.data.perSiteData)
+                //console.log(perSiteData)
             })
             .catch((err) => {
                 setErr(`User ${ip} not found! 🚫`)
@@ -42,8 +47,8 @@ const UserInfo = ({match}) => {
     }
     return(
         <div className="create">
+            <TitleComponent title={document.title}></TitleComponent>
             <Form onSubmit={getIPInfo} className="createForm">
-                <h1>User statistics</h1>
                 <div>
                     <Form.Label column="lg">User's IP</Form.Label>
                     <Form.Control className="inputField" size="lg" type="text" placeholder="IP" value={ip} onChange={(e) => setIP(e.target.value)}/>
@@ -55,17 +60,16 @@ const UserInfo = ({match}) => {
             {
                 userData.ip &&
                 <div>
-                    {/* <h1 className="mt-2">User statistics for {userData.ip}</h1> */} <br/>
                     <Row className="responseDiv align-items-center">
                         <Col><h1>🤵IP: <b>{userData.ip}</b></h1></Col>
                         <Col><h1>📅First used: <b>{userData.createdAt}</b></h1></Col>
                         <Col><h1>📢Total Visits: <b>{userData.totalVisits}</b></h1></Col>
                     </Row>
-                    {fullHistoryData && PerSiteHistoryData && <UserChart PerSiteHistoryData={PerSiteHistoryData} fullHistoryData={fullHistoryData}/>}
+                    {fullHistoryData && perSiteHistoryData && perSiteData && <UserChart perSiteData={perSiteData} perSiteHistoryData={perSiteHistoryData} fullHistoryData={fullHistoryData}/>}
                 </div>
             }
             {/* TODO: PER SITE DATA TABLE NEEDS TO BE CRETED */}
-            {err}
+            <h1 className="centerText mt-3">{err}</h1>
         </div>
     )
 }

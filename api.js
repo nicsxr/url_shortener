@@ -8,7 +8,6 @@ const tools = require('./tools')
 
 require('dotenv').config()
 
-connection = db.connection
 
 // needs to be moved
 const handleErrorAsync = func => async (req, res, next) => {
@@ -100,7 +99,7 @@ router.get('/info/url/:alias', handleErrorAsync(async (req, res, next) => {
 }))
 
 // View shortlink URL info
-router.get('/info/user/:ip', async (req, res) => {
+router.get('/info/user/:ip', handleErrorAsync(async (req, res, next) => {
     let { ip } = req.params
 
     result = await db.findUserByIP(ip)
@@ -130,7 +129,7 @@ router.get('/info/user/:ip', async (req, res) => {
     }else{
         res.status(404).send(`User ${ip} not found! 🚫`)
     }
-})
+}))
 
 // Update shortlink URL settings
 router.post('/delete', async (req, res) => {

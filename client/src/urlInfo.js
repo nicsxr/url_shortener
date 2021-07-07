@@ -1,9 +1,11 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import UrlChart from './urlChart'
+import UrlChart from './components/urlChart'
 import {Form, Button, Row, Col} from 'react-bootstrap'
+import TitleComponent from './components/title'
 
 const UrlInfo = ({match}) => {
+    document.title = "Alias statistics"
     const [alias, setAlias] = useState(match.params.alias ? match.params.alias : '')
     const [data, setData] = useState('')
     const [historyData, setHistoryData] = useState('')
@@ -34,8 +36,8 @@ const UrlInfo = ({match}) => {
     }
     return(
         <div className="create">
+            <TitleComponent title={document.title}></TitleComponent>
             <Form onSubmit={getUrlInfo} className="createForm">
-                <h1>Alias Statistics</h1> <br/>
                 <div>
                     <Form.Label column="lg">Custom Alias</Form.Label>
                     <Form.Control className="inputField" size="lg" type="text" placeholder="Alias" value={alias} onChange={(e) => setAlias(e.target.value)}/>
@@ -61,7 +63,7 @@ const UrlInfo = ({match}) => {
                     {data.alias && historyData && <UrlChart data={historyData}/>}
                 </div>
             }
-            {!data.alias && <h1>{data}</h1>}
+            {!data.alias && <h1 className="centerText mt-3">{data}</h1>}
         </div>
     )
 }

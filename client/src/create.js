@@ -1,9 +1,12 @@
 import axios from 'axios'
 import React, { useState } from 'react'
-import CreateResponse from './createResponse'
+import CreateResponse from './components/createResponse'
 import {Form, Button, Spinner} from 'react-bootstrap'
+import TitleComponent from './components/title'
 
 const Create = () => {
+    document.title="Create new shortlink"
+    
     const [url, setUrl] = useState('')
     const [alias, setAlias] = useState('')
     const [secret, setSecret] = useState('')
@@ -30,7 +33,7 @@ const Create = () => {
     }
     return(
         <div className="create">
-            <h2>Create new shortlink</h2>
+            <TitleComponent title={document.title}></TitleComponent>
             <Form onSubmit={sendCreateRequest} className="createForm">
                 <div>
                     <Form.Label column="lg">URL</Form.Label>
