@@ -22,10 +22,10 @@ const handleErrorAsync = func => async (req, res, next) => {
 const FORBIDDEN_ALIASES = ['create', 'alias', 'info', 'url', 'user', 'api', 'delete']
 
 // also need to be moved
-const URL_REGEX = /((https?):\/\/)?(www.)?[a-z0-9-]+(\.[a-z]{2,}){1,3}(#?\/?[a-zA-Z0-9#-]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-%]+&?)?$/
+const URL_REGEX = /((https?):\/\/)?(www.)?[a-z0-9_-]+(\.[a-z0-9_-]{2,}){1,3}(#?\/?[a-zA-Z0-9#-_]+)*\/?(\?[a-zA-Z0-9-_]+=[a-zA-Z0-9-_%]+&?)?$/
 let schema = yup.object().shape({
     url: yup.string().required().trim().matches(URL_REGEX, 'Must be a valid URL'),
-    alias: yup.string().required().lowercase().matches(/[\w\-]/i),
+    alias: yup.string().required().lowercase().matches(/^[aA-zZ0-9_-]+$/, 'Alias must only contain letters, numbers _ or -'),
     secret: yup.string()
 })
 
@@ -50,7 +50,6 @@ router.post('/create', async (req, res) =>{
 
     try {
         if (FORBIDDEN_ALIASES.includes(alias)){
-            console.log('eeeeeeeeeriha')
             throw new Error('🚫 Forbidden alias!')
         }
         // Validate schema

@@ -1,7 +1,7 @@
 const axios = require('axios')
 const db = require('./db')
 
-
+// need to add other protocols like ftp
 function getCorrectURL(url){
     if (!url.startsWith('http://') && !url.startsWith('https://')){
         console.log(url.startsWith('https://'))
