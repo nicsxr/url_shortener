@@ -1,3 +1,4 @@
+
 # General info
 URL shortener created using MERN stack. It stores and tracks every visit of a user to shortened links. It uses chartjs to display tracking data on charts.
  Tracking mechanism is fully custom made and there are methods that can display:
@@ -8,6 +9,11 @@ URL shortener created using MERN stack. It stores and tracks every visit of a us
  - Total visits of a user
  - Daily visits histry of a user
  - Daily visits history of a user to a given url
+
+## Setup
+
+ 1. Create .env file in the root directory with variable called - URI (connection string for mongodb).
+ 2. Change backend api url in /client/app,js
 
 ## User
 Users are defined by their IPs (currently using expressjs's built-in req.ip method, which isn't reliable. Better way of doing it would be using headers('x-forwarded-for', 'x-real-ip') when run behind a proxy) 
