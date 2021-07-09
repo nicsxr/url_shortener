@@ -6,11 +6,16 @@ const UrlChart = (props) => {
     useEffect (()=> {
         console.log(props)
         setData({
-            labels: props.data.map(o => o.date),
+            labels: props.fullData.map(o => o.date),
             datasets: [{
-              label: 'Visits Per Day',
-              data: props.data.map(o => o.visits),
-              borderColor: 'rgb(75, 192, 192)',
+              label: 'Total visits per day',
+              data: props.fullData.map(o => o.visits),
+              borderColor: 'rgb(50,205,50)',
+            },
+            {
+                label: 'Unique visits per day',
+                data: props.uniqueData.map(o => o.visits),
+                borderColor: 'rgb(255, 0, 0)',
             }]
         })
     }, [])

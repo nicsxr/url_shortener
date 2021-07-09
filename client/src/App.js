@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom'
 import UserInfo from './userInfo';
 import NavbarComponent from './components/navbar'
 
-axios.defaults.baseURL = 'https://shortlinkge.herokuapp.com/api/';
+axios.defaults.baseURL = 'https://shortlinkge.herokuapp.com/api/'; // url to backend api
 // axios.defaults.baseURL = 'http://localhost:8000/api/';
 
 

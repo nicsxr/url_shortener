@@ -82,6 +82,42 @@ function analyzeURLData(data){
         return new Date(a.date) - new Date(b.date);
     });
 
+
+    return finalresult
+}
+function analyzeURLUniqueData(data){
+    let history = []
+
+    // Create new array from history sub-documents
+    data.forEach(obj => {
+        obj.urlVisits.forEach(element => {
+            history.push(element)    
+        });
+    });
+
+    // merge objects with same dates
+    var result = history.reduce(function(acc, val){
+        var o = acc.filter(function(obj){
+            return obj.date==val.date;
+        }).pop() || {date:val.date, visits:0};
+        
+        o.visits += 1;
+        acc.push(o);
+        return acc;
+    },[]);
+
+    // Remove duplicates
+    var finalresult = result.filter(function(itm, i, a) {
+        return i == a.indexOf(itm);
+    });
+
+    // Sort results by date
+    finalresult.sort(function(a,b){
+        return new Date(a.date) - new Date(b.date);
+    });
+    console.log(finalresult)
+
+
     return finalresult
 }
 
@@ -159,6 +195,7 @@ module.exports = {
     getCorrectURL,
     getDate,
     analyzeURLData,
+    analyzeURLUniqueData,
     analyzeUserData,
     analyzeUserPerSiteData,
     analyzeUserPerSiteHistoryData

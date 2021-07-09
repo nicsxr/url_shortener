@@ -82,23 +82,26 @@ router.get('/info/url/:alias', handleErrorAsync(async (req, res, next) => {
     alias = alias.toLowerCase()
     
     result = await db.findByAlias(alias)
-
-    console.log(result)
     
     urlHistory = await db.findURLHistoryByAlias(alias)
-    analyzedResult = tools.analyzeURLData(urlHistory)
+    fullResults = tools.analyzeURLData(urlHistory)
+    uniqueResults = tools.analyzeURLUniqueData(urlHistory)
 
     urlInfo = {
         alias: result.alias,
         url: result.url,
         createdAt: tools.getDate(result.createdAt),
-        totalVisits: analyzedResult.reduce((a, b) => +a + +b.visits, 0)
+        totalVisits: fullResults.reduce((a, b) => +a + +b.visits, 0)
     }
 
-    analyzedResult.splice(0,0, urlInfo)
-    console.log(analyzedResult)
+    finalResults = {
+        urlInfo,
+        fullResults,
+        uniqueResults
+    }
+
     if (result){
-        res.send(analyzedResult)
+        res.send(finalResults)
     }else{
         res.status(404)
     }

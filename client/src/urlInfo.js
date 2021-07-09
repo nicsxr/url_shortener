@@ -8,7 +8,8 @@ const UrlInfo = ({match}) => {
     document.title = "Alias statistics"
     const [alias, setAlias] = useState(match.params.alias ? match.params.alias : '')
     const [data, setData] = useState('')
-    const [historyData, setHistoryData] = useState('')
+    const [fullData, setFullData] = useState('')
+    const [uniqueData, setUniqueData] = useState('')
     
     useEffect (()=> {
         if (match.params.alias){
@@ -17,7 +18,7 @@ const UrlInfo = ({match}) => {
     }, [])
 
     const getUrlInfo = (e) => {
-        setHistoryData('')
+        setFullData('')
         setData('')
         console.log(alias)
         if(e)
@@ -25,9 +26,9 @@ const UrlInfo = ({match}) => {
 
         axios.get(`info/url/${alias}`)
         .then((res) => {
-                setHistoryData(res.data.slice(1))
-                console.log(historyData)
-                setData(res.data[0])
+                setFullData(res.data.fullResults)
+                setUniqueData(res.data.uniqueResults)
+                setData(res.data.urlInfo)
             })
             .catch((err) => {
                 console.log(err)
@@ -60,7 +61,7 @@ const UrlInfo = ({match}) => {
                         <Col><h1>📢Total Visits: <b>{data.totalVisits}</b></h1></Col>
                     </Row>
                     <h1 className="mt-2">URL statistics</h1>
-                    {data.alias && historyData && <UrlChart data={historyData}/>}
+                    {data.alias && fullData && <UrlChart fullData={fullData} uniqueData={uniqueData}/>}
                 </div>
             }
             {!data.alias && <h1 className="centerText mt-3">{data}</h1>}
