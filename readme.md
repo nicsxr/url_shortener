@@ -8,7 +8,6 @@ URL shortener created using MERN stack. It stores and tracks every visit of a us
  - Total visits of a user
  - Daily visits histry of a user
  - Daily visits history of a user to a given url
- - 
 
 ## User
 Users are defined by their IPs (currently using expressjs's built-in req.ip method, which isn't reliable. Better way of doing it would be using headers('x-forwarded-for', 'x-real-ip') when run behind a proxy) 
