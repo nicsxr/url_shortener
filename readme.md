@@ -1,6 +1,6 @@
 
 # General info
-URL shortener created using MERN stack. It stores and tracks every visit of a user to shortened links. It uses chartjs to display tracking data on charts.
+URL shortener created using MERN stack. It stores and tracks every visit of a user to shortened links. It uses chartjs to visualize tracking data with charts.
  Tracking mechanism is fully custom made and there are methods that can display:
  
 
