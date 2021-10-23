@@ -13,7 +13,8 @@ URL shortener created using MERN stack. It stores and tracks every visit of a us
 ## Setup
 
  1. Create .env file in the root directory with variable called - URI (connection string for mongodb).
- 2. Change backend api url in /client/app,js
+ 2. Change backend api url in /client/app.js
+ 3. 3. npm i
 
 ## User
 Users are defined by their IPs (currently using expressjs's built-in req.ip method, which isn't reliable. Better way of doing it would be using headers('x-forwarded-for', 'x-real-ip') when run behind a proxy) 
