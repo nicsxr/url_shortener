@@ -28,7 +28,7 @@ Shortened URLs are stored with 4 fields.
  - urlVisits - Array of ids' of urlHistory objects that are connected to this alias.	
 
 ## URL History and tracking
-All the tracking is done in seperate DB collections called 'urlHistory'. It stores relation between user's IP and websites Alias.
+All the tracking is done in seperate DB collections called 'urlHistory'. It stores relations between user's IP and websites Alias.
 It has 5 fields:
 
  - ip - IP of a user
